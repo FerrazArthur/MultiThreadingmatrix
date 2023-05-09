@@ -112,6 +112,10 @@ int main()
                     threads.push_back(ptr);
                 else
                     throw("Erro de alocação de thread");
+
+                while(currentThreads >= MAXTHREADS)//não abra novas threads enquanto tiver mais do que >MAXTHREADS< rodando
+                    usleep(0.1);
+
                 if (pthread_create(threads.back(), NULL, multiplicaLinha, data.back()) != 0)
                     throw("Erro ao criar thread");
                 mtx.lock();
@@ -122,7 +126,7 @@ int main()
         // Imprimindo o andamento
         printf("esperando encerramento das threads abertas\n");
         while(currentThreads > 0){
-            sleep(0.00001);
+            usleep(0.1);
         }//só liberará o fluxo do código uma vez que todas as threads tenham sido executadas até o fim
         printf("threads concluidas\n");
 

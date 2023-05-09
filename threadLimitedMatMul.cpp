@@ -4,20 +4,19 @@
 using namespace std;
 
 #define TAMANHOMATRIZ 3 // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
+#define MAXTHREADS 8
 
 /*
- * Esse algoritmo implementa uma abordagem de multiplicação de matrizes utilizando threads em C++. O número de threads utilizado é definido pela constante TAMANHOMATRIZ, que também define o número de linhas e colunas das matrizes a serem multiplicadas.
+ *Este código implementa uma solução multithread para multiplicação de matrizes. A matriz resultante da multiplicação é armazenada em uma matriz C que é inicializada com zeros. O número de threads que podem ser abertas simultaneamente é limitado e controlado pela variável global currentThreads.
 
-As threads são criadas no método threadMatMul, que recebe como parâmetros as matrizes a e b e a matriz resultante c. Dentro desse método, as threads são criadas utilizando a função pthread_create, passando como argumentos um identificador da thread, um ponteiro para uma estrutura de dados Dados e o método multiplicaLinha, que é responsável pela multiplicação das linhas da matriz a pelas colunas da matriz b, preenchendo a matriz resultante c.
+A multiplicação de matrizes é realizada por meio de uma função multiplicaLinha, que é chamada por cada thread. Cada thread recebe uma entidade Dados que contém as referências para as matrizes A, B e C, além de um identificador de thread.
 
-O método multiplicaLinha recebe como parâmetro um ponteiro para uma estrutura Dados, que contém as referências para as linhas da matriz a, a matriz b e a linha da matriz c que será preenchida. A multiplicação é feita utilizando um loop aninhado, onde cada elemento da linha de a é multiplicado pelos elementos da coluna correspondente em b, e o resultado é somado na posição correspondente na matriz c. Ao final, a thread é finalizada com pthread_exit.
+A função threadMatMul cria e inicia as threads para a multiplicação. Ela também aguarda a conclusão de todas as threads antes de imprimir a matriz resultante.
 
-Após a criação das threads, o método threadMatMul aguarda até que todas as threads tenham finalizado, utilizando um loop com a função sleep, verificando se o contador global de threads ainda é maior que zero. Quando todas as threads finalizam, a função printaMat é chamada para imprimir as matrizes a, b e c.
+A função printaMat é utilizada para imprimir as matrizes A, B e C.
 
-Por fim, são desalocados os ponteiros utilizados na memória com os operadores free.
-
-É importante mencionar que essa abordagem não é a mais eficiente para a multiplicação de matrizes em termos de desempenho e que a utilização de mutexes pode ser necessária para garantir a integridade dos dados.
- *
+Na função principal (main), as matrizes A, B e C são alocadas e inicializadas. O número máximo de threads simultâneas é definido pela constante MAXTHREADS. Em seguida, a multiplicação é realizada e as matrizes são impressas. Por fim, a memória alocada é liberada.
+ * Implementa um limite de quantas threads concorrentes podem existir, mas ainda não é uma boa solução.
  */
 int currentThreads = 0; // Variável global controle para quantidade de threads abertas
 
@@ -82,7 +81,7 @@ void threadMatMul(long unsigned int **a, long unsigned **b, long unsigned **c)
 
     printf("esperando encerramento das threads abertas\n");
     while(currentThreads > 0){
-        usleep(0.1);//para não consumir muito processamento ao esperar
+        sleep(0.1);//para não consumir muito processamento ao esperar
     }//só liberará o fluxo do código uma vez que todas as threads tenham sido executadas até o fim
 
     printf("threads concluidas\n");
@@ -110,6 +109,7 @@ int main()
                 b[i][j] += i+j;
             }
     }
+    printf("Usando %d threads simultâneas\n", MAXTHREADS);
     //realizando a multiplicação
     threadMatMul(a, b, c);
     printaMat(a, TAMANHOMATRIZ, "matriz a:");

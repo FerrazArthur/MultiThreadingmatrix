@@ -1,5 +1,13 @@
 #include<iostream>
 
+/*
+ * Esse código é escrito em C++ e realiza a multiplicação de matrizes utilizando dois métodos diferentes: proceduralMatMul e proceduralMatMulTrans. O primeiro método realiza a multiplicação sequencial sem transposição da matriz b, enquanto o segundo realiza a multiplicação sequencial com a matriz b transposta.
+
+O método printaMat é usado para imprimir as matrizes a, b e c na tela, para verificarmos o resultado da multiplicação.
+
+Na função main, são inicializadas quatro matrizes dinamicamente, preenchidas com valores e multiplicadas utilizando o método proceduralMatMulTrans. Em seguida, as matrizes são impressas e a memória alocada é desalocada.
+*/
+
 void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
 {
     printf("%s\n", titulo);
