@@ -12,7 +12,7 @@ using namespace std;
  * O programa inicializa as matrizes de entrada "a" e "b" com valores baseados na soma de seus índices de linha e coluna. O programa também inicializa a matriz de saída "c" com zeros. Depois de criar os threads, o programa espera até que todos os threads sejam concluídos antes de imprimir a matriz resultante e liberar a memória alocada.
  * */
 
-#define TAMANHOMATRIZ 5 // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
+#define TAMANHOMATRIZ 3 // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
 
 int currentThreads = 0; // Variável global controle para quantidade de threads abertas
 mutex mtx;
@@ -20,9 +20,9 @@ mutex mtx;
 struct Dados
 {
     long unsigned int *A, *C, *B;// A é referencia para linha de matriz linha x coluna, B é referencia pra linha da matriz transposta de B(seria a coluna de uma matriz b que multiplica a) e C é o endereço de um inteiro
-    long unsigned int threadId, i, j;
+    int threadId, i, j;
 
-    Dados(long unsigned int *a, long unsigned int *b, long unsigned int *c, long unsigned int t, long unsigned int I, long unsigned int J)
+    Dados(long unsigned int *a, long unsigned int *b, long unsigned int *c, int t, int I, int J)
     {
         A = a;
         B = b;
@@ -53,19 +53,20 @@ void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
     }
 }
 
-void *multiplicaLinha(void* dados)
+void *multiplicaLinha(void *dados)
 {
     Dados *ptr = (Dados *) dados;
-    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
+    for(int i = 0; i < TAMANHOMATRIZ; i++)
     {
         mtx.lock();
         *(ptr->C) += ptr->A[i] * ptr->B[i];
         mtx.unlock();
+        printf("C[%d][%d] += A[%d][%d] x B[%d][%d]\n", ptr->i, ptr->j, ptr->i, i,i, ptr->j);
     }
+    printf("thread#%02d: concluída\n", ptr->threadId);
     mtx.lock();
-    currentThreads--;//Decrementa o numero de threads
+    currentThreads--;//decrementa 1 do número global de threads abertas, já que essa será fechada
     mtx.unlock();
-    printf("thread#%02lu: concluída\n", ptr->threadId);
     pthread_exit(NULL);
 }
 
@@ -99,10 +100,11 @@ int main()
                     b[j][i] += i+j;
                 }
         // Criando as threads
+        mtx.lock();
         for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
             for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
             {
-                dataptr = new Dados(a[i], b[j], &c[i][j], i*TAMANHOMATRIZ + j, i, j);
+                dataptr = new Dados(a[i], b[j], &c[i][j], i*10 + j, i, j);
                 if(dataptr != NULL)
                     data.push_back(dataptr);
                 else
@@ -114,22 +116,23 @@ int main()
                     throw("Erro de alocação de thread");
                 if (pthread_create(threads.back(), NULL, multiplicaLinha, data.back()) != 0)
                     throw("Erro ao criar thread");
-                mtx.lock();
                 currentThreads++;// Incrementa o contador global de threads abertas
-                mtx.unlock();
             }
+        mtx.unlock();
 
         // Imprimindo o andamento
         printf("esperando encerramento das threads abertas\n");
         while(currentThreads > 0){
-            sleep(0.00001);
-        }//só liberará o fluxo do código uma vez que todas as threads tenham sido executadas até o fim
+            mtx.lock();
+            printf("currentThreads:%d\n", currentThreads);
+            mtx.unlock();
+        sleep(0.001);}//só liberará o fluxo do código uma vez que todas as threads tenham sido executadas até o fim
         printf("threads concluidas\n");
 
         // Imprimindo o resultado
         printaMat(c, TAMANHOMATRIZ, "\n\tResultado:");
         // desalocando memória
-        for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
+        for(int i = 0; i < TAMANHOMATRIZ; i++)
         {
             free(a[i]);
             free(b[i]);
@@ -138,17 +141,10 @@ int main()
         free(a);
         free(b);
         free(c);
-        while(threads.empty() == false)
+        for(pthread_t *ptr = threads.back(); ptr != NULL;ptr = threads.back())
         {
-            ptr = threads.back();
             free(ptr);
             threads.pop_back();
-        }
-        while(data.empty() == false)
-        {
-            dataptr = data.back();
-            free(dataptr);
-            data.pop_back();
         }
         data.clear();
         threads.clear();
