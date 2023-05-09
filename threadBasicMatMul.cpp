@@ -1,8 +1,9 @@
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
+#include <mutex>
 using namespace std;
-
+mutex mtx;
 #define TAMANHOMATRIZ 3 // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
 
 /*
@@ -75,7 +76,9 @@ void threadMatMul(long unsigned int **a, long unsigned **b, long unsigned **c)
     {
         data[i] = Dados(a[i], b, c[i], i);// Cada thread recebe uma entidade de Dados
         pthread_create(&threads[i], NULL, multiplicaLinha, (void *)&data[i]);
+        mtx.lock();
         currentThreads++;// Incrementa o contador global de threads abertas
+        mtx.unlock();
     }
 
     // Imprimindo o andamento
