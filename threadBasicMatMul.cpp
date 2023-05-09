@@ -104,5 +104,14 @@ int main()
     printaMat(a, NLINHAS, "matriz a:");
     printaMat(b, NLINHAS, "matriz b:");
     printaMat(c, NLINHAS, "matriz c:");
+    for(int i = 0; i < NLINHAS; i++)
+    {
+        free(a[i]);
+        free(b[i]);
+        free(c[i]);
+    }
+    free(a);
+    free(b);
+    free(c);
     return 0;
 }
