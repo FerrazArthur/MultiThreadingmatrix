@@ -12,7 +12,7 @@ using namespace std;
  * O programa inicializa as matrizes de entrada "a" e "b" com valores baseados na soma de seus índices de linha e coluna. O programa também inicializa a matriz de saída "c" com zeros. Depois de criar os threads, o programa espera até que todos os threads sejam concluídos antes de imprimir a matriz resultante e liberar a memória alocada.
  * */
 
-#define TAMANHOMATRIZ 5 // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
+long unsigned int TAMANHOMATRIZ = 3; // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
 #define MAXTHREADS 8
 
 long unsigned int currentThreads = 0; // Variável global controle para quantidade de threads abertas
@@ -70,10 +70,12 @@ void *multiplicaLinha(void* dados)
     pthread_exit(NULL);
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     try
     {
+        if(argc > 1)//caso receba valor específico para tamanho de matriz
+            TAMANHOMATRIZ = strtoul(argv[1], NULL, 10);
         vector<pthread_t*> threads;
         vector<Dados*> data;
         pthread_t* ptr = NULL;

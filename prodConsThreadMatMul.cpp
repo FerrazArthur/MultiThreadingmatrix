@@ -102,7 +102,12 @@ int main(int argc, char *argv[])
         if(argc > 1)//caso receba valor específico para tamanho de matriz
             TAMANHOMATRIZ = strtoul(argv[1], NULL, 10);
         if(argc > 2)//caso receba valor específico para quantidade de threads
+        {
             nThreads = atoi(argv[2]);
+            if (nThreads < 2)
+                printf("numero de threads insuficiente, será utilizado 8 no lugar.\n");
+                nThreads = 8;
+        }
         printf("Execução para %lu linhas, utilizando %d threads:\n", TAMANHOMATRIZ, nThreads);
         pthread_t threads[nThreads];
         Dados data[nThreads];

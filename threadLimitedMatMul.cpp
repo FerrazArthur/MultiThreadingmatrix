@@ -5,7 +5,7 @@
 using namespace std;
 
 mutex mtx;
-#define TAMANHOMATRIZ 3 // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
+long unsigned int TAMANHOMATRIZ = 3; // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
 #define MAXTHREADS 8
 
 /*
@@ -95,8 +95,11 @@ void threadMatMul(long unsigned int **a, long unsigned **b, long unsigned **c)
 
 
 using namespace std;
-int main()
+int main(int argc, char* argv[])
 {
+    if(argc > 1)//caso receba valor específico para tamanho de matriz
+        TAMANHOMATRIZ = strtoul(argv[1], NULL, 10);
+
     long unsigned int **a, **b, **binv, **c;
     // Alocação e inicialização das variáveis a serem utilizadas
     a = new long unsigned int*[TAMANHOMATRIZ];

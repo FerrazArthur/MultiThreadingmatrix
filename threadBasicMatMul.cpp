@@ -4,7 +4,7 @@
 #include <mutex>
 using namespace std;
 mutex mtx;
-#define TAMANHOMATRIZ 3 // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
+long unsigned int TAMANHOMATRIZ = 3; // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
 
 /*
  * Esse algoritmo implementa uma abordagem de multiplicação de matrizes utilizando threads em C++. O número de threads utilizado é definido pela constante TAMANHOMATRIZ, que também define o número de linhas e colunas das matrizes a serem multiplicadas.
@@ -25,9 +25,9 @@ long unsigned int currentThreads = 0; // Variável global controle para quantida
 struct Dados
 {
     long unsigned int *A, *C, **B;// A e C são Referências para linhas de matriz linha x coluna, B é referencia pra matriz inteira linha x coluna
-    int threadId;
+    long unsigned int threadId;
 
-    Dados(long unsigned int *a, long unsigned int **b, long unsigned int *c, int t)
+    Dados(long unsigned int *a, long unsigned int **b, long unsigned int *c, long unsigned int t)
     {
         A = a;
         B = b;
@@ -57,12 +57,12 @@ void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
 void *multiplicaLinha(void *dados)
 {
     Dados *ptr = (Dados *) dados;
-    for(int i = 0; i < TAMANHOMATRIZ; i++)
+    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
     {
-        for(int j = 0; j < TAMANHOMATRIZ; j++)
+        for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
             ptr->C[i] += ptr->A[j] * ptr->B[i][j];
     }
-    printf("thread#%02d: concluída\n", ptr->threadId);
+    printf("thread#%02lu: concluída\n", ptr->threadId);
     currentThreads--;//decrementa 1 do número global de threads abertas, já que essa será fechada
     pthread_exit(NULL);
 }
@@ -93,8 +93,11 @@ void threadMatMul(long unsigned int **a, long unsigned **b, long unsigned **c)
 
 
 using namespace std;
-int main()
+int main(int argc, char* argv[])
 {
+    if(argc > 1)//caso receba valor específico para tamanho de matriz
+        TAMANHOMATRIZ = strtoul(argv[1], NULL, 10);
+
     long unsigned int **a, **b, **binv, **c;
     // Alocação e inicialização das variáveis a serem utilizadas
     a = new long unsigned int*[TAMANHOMATRIZ];
