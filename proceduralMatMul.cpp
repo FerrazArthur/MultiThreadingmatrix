@@ -11,9 +11,9 @@ Na função main, são inicializadas quatro matrizes dinamicamente, preenchidas 
 void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
 {
     printf("%s\n", titulo);
-    for(int i = 0; i < n; i++)
+    for(long unsigned int i = 0; i < n; i++)
     {
-        for(int j = 0; j < n; j++)
+        for(long unsigned int j = 0; j < n; j++)
             printf("%5ld ", mat[i][j]);
         printf("\n");
     }

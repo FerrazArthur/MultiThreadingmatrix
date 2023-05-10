@@ -20,7 +20,7 @@ Por fim, são desalocados os ponteiros utilizados na memória com os operadores 
 É importante mencionar que essa abordagem não é a mais eficiente para a multiplicação de matrizes em termos de desempenho e que a utilização de mutexes pode ser necessária para garantir a integridade dos dados.
  *
  */
-int currentThreads = 0; // Variável global controle para quantidade de threads abertas
+long unsigned int currentThreads = 0; // Variável global controle para quantidade de threads abertas
 
 struct Dados
 {
@@ -46,9 +46,9 @@ struct Dados
 void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
 {
     printf("%s\n", titulo);
-    for(int i = 0; i < n; i++)
+    for(long unsigned int i = 0; i < n; i++)
     {
-        for(int j = 0; j < n; j++)
+        for(long unsigned int j = 0; j < n; j++)
             printf("%5ld ", mat[i][j]);
         printf("\n");
     }
@@ -72,7 +72,7 @@ void threadMatMul(long unsigned int **a, long unsigned **b, long unsigned **c)
     pthread_t threads[TAMANHOMATRIZ];
     Dados data[TAMANHOMATRIZ];
     // Criando as threads
-    for(int i = 0; i < TAMANHOMATRIZ; i++)
+    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
     {
         data[i] = Dados(a[i], b, c[i], i);// Cada thread recebe uma entidade de Dados
         pthread_create(&threads[i], NULL, multiplicaLinha, (void *)&data[i]);
@@ -102,12 +102,12 @@ int main()
     c = new long unsigned int*[TAMANHOMATRIZ];
 
     // Preenchimento das matrizes a serem multiplicadas
-    for(int i = 0; i < TAMANHOMATRIZ; i++)
+    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
     {
         a[i] = new long unsigned int[TAMANHOMATRIZ];
         b[i] = new long unsigned int[TAMANHOMATRIZ];
         c[i] = new long unsigned int[TAMANHOMATRIZ]{0};//iniciados preenchidos com zeros
-        for(int j = 0; j < TAMANHOMATRIZ; j++)
+        for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
             {
                 a[i][j] += i+j;
                 b[i][j] += i+j;
@@ -118,7 +118,7 @@ int main()
     printaMat(a, TAMANHOMATRIZ, "matriz a:");
     printaMat(b, TAMANHOMATRIZ, "matriz b:");
     printaMat(c, TAMANHOMATRIZ, "matriz c:");
-    for(int i = 0; i < TAMANHOMATRIZ; i++)
+    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
     {
         free(a[i]);
         free(b[i]);

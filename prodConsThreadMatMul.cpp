@@ -14,59 +14,60 @@
 a parte principal do algoritmo é a multiplicação de matrizes, que é realizada pelas threads consumidoras. cada thread consome uma linha da matriz a e uma linha correspondente da matriz c. a multiplicação de matrizes é feita seguindo a fórmula clássica: c[i][j] = soma(a[i][k]*b[k][j]) para todos os valores possíveis de k.
  */
 
-#define TAMANHOMATRIZ 3 // numero de linhas das matrizes
-#define nthreads 8  // numero de threads consumidoras utilizadas
 
-long unsigned int currentthreads;
+long unsigned int currentThreads;
 
 using namespace std;
 mutex mtx;
+
+int nThreads = 8;  // numero de threads consumidoras utilizadas
+long unsigned int TAMANHOMATRIZ = 3; // numero de linhas das matrizes
 /*
  * */
 
-struct dados
+struct Dados
 {
     long unsigned int **b;// b é referencia pra matriz inteira linha x coluna
-    std::vector<long unsigned int*> a, c;//vetor de referencias para linhas da matriz a e c que essa thread consumirá
-    long unsigned int threadid;
+    vector<long unsigned int*> a, c;//vetor de referencias para linhas da matriz a e c que essa thread consumirá
+    long unsigned int threadId;
 
-    void adicionarlinhas(long unsigned int *a, long unsigned int *c)//atualizar conteúdo da thread
+    void adicionarlinhas(long unsigned int *A, long unsigned int *B)//atualizar conteúdo da thread
     {
-        a.push_back(a);
-        c.push_back(c);
+        a.push_back(A);
+        c.push_back(B);
     }
     long unsigned int* geta()
     {
-        long unsigned int* a;
-        a = a.back();
+        long unsigned int* A;
+        A = a.back();
         a.pop_back();
-        return a;
+        return A;
     }
     long unsigned int* getc()
     {
-        long unsigned int* c;
-        c = c.back();
+        long unsigned int* C;
+        C = c.back();
         c.pop_back();
-        return c;
+        return C;
     }
-    dados(long unsigned int **b, long unsigned int t)
+    Dados(long unsigned int **B, long unsigned int t)
     {
-        b = b;
-        threadid = t;
+        b = B;
+        threadId = t;
     }
-    dados()// o compulador pediu então implementei
+    Dados()// o compulador pediu então implementei
     {
-        b = null;
-        threadid = 0;
+        b = NULL;
+        threadId = 0;
     }
 };
 
-void printamat(long unsigned int **mat, long unsigned n, const char* titulo)
+void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
 {
     printf("%s\n", titulo);
-    for(int i = 0; i < n; i++)
+    for(long unsigned int i = 0; i < n; i++)
     {
-        for(int j = 0; j < n; j++)
+        for(long unsigned int j = 0; j < n; j++)
             printf("%5ld ", mat[i][j]);
         printf("\n");
     }
@@ -74,7 +75,7 @@ void printamat(long unsigned int **mat, long unsigned n, const char* titulo)
 
 void *multiplicalinha(void *dados)
 {
-    dados *ptr = (dados *) dados;
+    Dados *ptr = (Dados *) dados;
     long unsigned int *a, *c;//ponteiros temporarios
 
     while(!(ptr->a.empty()) && !(ptr->c.empty()))//enquanto tiver algo na fila dessa thread
@@ -83,23 +84,28 @@ void *multiplicalinha(void *dados)
         c = ptr->getc();//pega uma linha correspondente em c
         for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)//executa o calculo normalmente
         {
-            for(int j = 0; j < TAMANHOMATRIZ; j++)
+            for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
                 c[i] += a[j] * ptr->b[i][j];
         }
     }
-    printf("thread#%02lu: concluída\n", ptr->threadid);
+    printf("thread#%02lu: concluída\n", ptr->threadId);
     mtx.lock();
-    currentthreads--;//decrementa 1 do número global de threads abertas, já que essa será fechada
+    currentThreads--;//decrementa 1 do número global de threads abertas, já que essa será fechada
     mtx.unlock();
-    pthread_exit(null);
+    pthread_exit(NULL);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     try
     {
-        pthread_t threads[nthreads];
-        dados data[nthreads];
+        if(argc > 1)//caso receba valor específico para tamanho de matriz
+            TAMANHOMATRIZ = strtoul(argv[1], NULL, 10);
+        if(argc > 2)//caso receba valor específico para quantidade de threads
+            nThreads = atoi(argv[2]);
+        printf("Execução para %lu linhas, utilizando %d threads:\n", TAMANHOMATRIZ, nThreads);
+        pthread_t threads[nThreads];
+        Dados data[nThreads];
         long unsigned int **a, **b, **c;
 
         // alocação e inicialização das variáveis a serem utilizadas
@@ -108,8 +114,8 @@ int main()
         c = new long unsigned int*[TAMANHOMATRIZ];
 
         //insere o vetor b no contexto de todas as threads
-        for(long unsigned int i = 0; i < nthreads; i++)
-            data[i] = dados(b, i+1);
+        for(long unsigned int i = 0; i < nThreads; i++)
+            data[i] = Dados(b, i+1);
 
         // preenchimento das matrizes a serem multiplicadas
         for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
@@ -118,38 +124,38 @@ int main()
             b[i] = new long unsigned int[TAMANHOMATRIZ];
             c[i] = new long unsigned int[TAMANHOMATRIZ]{0};//iniciados preenchidos com zeros
 
-            for(int j = 0; j < TAMANHOMATRIZ; j++)
+            for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
                     a[i][j] += i+j;
 
             //distribui as linhas entre as threads utilizando o resto da divisão da linha atual pela quantidade de threads
-            data[i % nthreads].adicionarlinhas(a[i], c[i]);
+            data[i % nThreads].adicionarlinhas(a[i], c[i]);
         }
         for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)//calculando a transposta de b
-            for(int j = 0; j < TAMANHOMATRIZ; j++)
+            for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
                     b[j][i] += i+j;
         //
         // criando as threads
-        for(long unsigned int i = 0; i < nthreads; i++)
+        for(long unsigned int i = 0; i < nThreads; i++)
         {
-            if(pthread_create(&threads[i], null, multiplicalinha, (void *)&data[i]) != 0)
+            if(pthread_create(&threads[i], NULL, multiplicalinha, (void *)&data[i]) != 0)
                 throw("erro ao criar thread i");
             mtx.lock();
-            currentthreads++;// incrementa o contador global de threads abertas
+            currentThreads++;// incrementa o contador global de threads abertas
             mtx.unlock();
         }
 
         // imprimindo o andamento
         printf("esperando encerramento das threads abertas\n");
-        while(currentthreads > 0)
+        while(currentThreads > 0)
         {
             usleep(0.1);//só liberará o fluxo do código uma vez que todas as threads tenham sido executadas até o fim
         }
         printf("threads concluidas\n");
 
         // imprimindo o resultado
-        printamat(c, TAMANHOMATRIZ, "\n\tresultado:");
+        printaMat(c, TAMANHOMATRIZ, "\n\tresultado:");
         // desalocando memória
-        for(int i = 0; i < TAMANHOMATRIZ; i++)
+        for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
         {
             free(a[i]);
             free(b[i]);

@@ -20,14 +20,14 @@ A função printaMat é utilizada para imprimir as matrizes A, B e C.
 Na função principal (main), as matrizes A, B e C são alocadas e inicializadas. O número máximo de threads simultâneas é definido pela constante MAXTHREADS. Em seguida, a multiplicação é realizada e as matrizes são impressas. Por fim, a memória alocada é liberada.
  * Implementa um limite de quantas threads concorrentes podem existir, mas ainda não é uma boa solução.
  */
-int currentThreads = 0; // Variável global controle para quantidade de threads abertas
+long unsigned int currentThreads = 0; // Variável global controle para quantidade de threads abertas
 
 struct Dados
 {
     long unsigned int *A, *C, **B;// A e C são Referências para linhas de matriz linha x coluna, B é referencia pra matriz inteira linha x coluna
-    int threadId;
+    long unsigned int threadId;
 
-    Dados(long unsigned int *a, long unsigned int **b, long unsigned int *c, int t)
+    Dados(long unsigned int *a, long unsigned int **b, long unsigned int *c, long unsigned int t)
     {
         A = a;
         B = b;
@@ -46,9 +46,9 @@ struct Dados
 void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
 {
     printf("%s\n", titulo);
-    for(int i = 0; i < n; i++)
+    for(long unsigned int i = 0; i < n; i++)
     {
-        for(int j = 0; j < n; j++)
+        for(long unsigned int j = 0; j < n; j++)
             printf("%5ld ", mat[i][j]);
         printf("\n");
     }
@@ -57,12 +57,12 @@ void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
 void *multiplicaLinha(void *dados)
 {
     Dados *ptr = (Dados *) dados;
-    for(int i = 0; i < TAMANHOMATRIZ; i++)
+    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
     {
-        for(int j = 0; j < TAMANHOMATRIZ; j++)
+        for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
             ptr->C[i] += ptr->A[j] * ptr->B[i][j];
     }
-    printf("thread#%02d: concluída\n", ptr->threadId);
+    printf("thread#%02lu: concluída\n", ptr->threadId);
     currentThreads--;//decrementa 1 do número global de threads abertas, já que essa será fechada
     pthread_exit(NULL);
 }
@@ -72,7 +72,7 @@ void threadMatMul(long unsigned int **a, long unsigned **b, long unsigned **c)
     pthread_t threads[TAMANHOMATRIZ];
     Dados data[TAMANHOMATRIZ];
     // Criando as threads
-    for(int i = 0; i < TAMANHOMATRIZ; i++)
+    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
     {
         data[i] = Dados(a[i], b, c[i], i);// Cada thread recebe uma entidade de Dados
         while(currentThreads > MAXTHREADS)//espera até que alguma thread finalize para abrir uma nova, caso seja necessário
@@ -104,12 +104,12 @@ int main()
     c = new long unsigned int*[TAMANHOMATRIZ];
 
     // Preenchimento das matrizes a serem multiplicadas
-    for(int i = 0; i < TAMANHOMATRIZ; i++)
+    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
     {
         a[i] = new long unsigned int[TAMANHOMATRIZ];
         b[i] = new long unsigned int[TAMANHOMATRIZ];
         c[i] = new long unsigned int[TAMANHOMATRIZ]{0};//iniciados preenchidos com zeros
-        for(int j = 0; j < TAMANHOMATRIZ; j++)
+        for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
             {
                 a[i][j] += i+j;
                 b[i][j] += i+j;
@@ -121,7 +121,7 @@ int main()
     printaMat(a, TAMANHOMATRIZ, "matriz a:");
     printaMat(b, TAMANHOMATRIZ, "matriz b:");
     printaMat(c, TAMANHOMATRIZ, "matriz c:");
-    for(int i = 0; i < TAMANHOMATRIZ; i++)
+    for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)
     {
         free(a[i]);
         free(b[i]);

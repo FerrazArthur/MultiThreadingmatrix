@@ -13,8 +13,9 @@ using namespace std;
  * */
 
 #define TAMANHOMATRIZ 5 // Numero de linhas e numero de threads unificados em TAMANHOMATRIZ
+#define MAXTHREADS 8
 
-int currentThreads = 0; // Variável global controle para quantidade de threads abertas
+long unsigned int currentThreads = 0; // Variável global controle para quantidade de threads abertas
 mutex mtx;
 
 struct Dados
@@ -45,9 +46,9 @@ struct Dados
 void printaMat(long unsigned int **mat, long unsigned n, const char* titulo)
 {
     printf("%s\n", titulo);
-    for(int i = 0; i < n; i++)
+    for(long unsigned int i = 0; i < n; i++)
     {
-        for(int j = 0; j < n; j++)
+        for(long unsigned int j = 0; j < n; j++)
             printf("%5ld ", mat[i][j]);
         printf("\n");
     }
@@ -90,11 +91,11 @@ int main()
             a[i] = new long unsigned int[TAMANHOMATRIZ];
             b[i] = new long unsigned int[TAMANHOMATRIZ];
             c[i] = new long unsigned int[TAMANHOMATRIZ]{0};//iniciados preenchidos com zeros
-            for(int j = 0; j < TAMANHOMATRIZ; j++)
+            for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
                     a[i][j] += i+j;
         }
         for(long unsigned int i = 0; i < TAMANHOMATRIZ; i++)//calculando a transposta de B
-            for(int j = 0; j < TAMANHOMATRIZ; j++)
+            for(long unsigned int j = 0; j < TAMANHOMATRIZ; j++)
                 {
                     b[j][i] += i+j;
                 }
