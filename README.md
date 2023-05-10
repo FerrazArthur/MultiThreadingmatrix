@@ -4,10 +4,8 @@ Este repositório contém um exemplo simples de como usar multithreading em C++ 
 - Os arquivos podem ser compilados usando o Makefile fornecido. Para compilar o código, basta navegar até o diretório raiz do repositório e executar o seguinte comando:
 > make <nome do executável> #a utilização da tecla tab, deve mostrar as opções de arquivos.
 
-- O tamanho das matrizes a serem calculadas pode ser definido através da diretiva TAMANHOMATRIZ nos arquivos de código-fonte.
-
 - Para executar o programa, basta digitar o seguinte comando no terminal:
-> ./\<nome do executavel\>
+> ./\<nome do executavel\> \<quantidade de linhas(padrão 3)\>
   
 - Para remover os executáveis, basta executar o seguinte comando:
 > make clean
